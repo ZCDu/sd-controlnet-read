@@ -72,9 +72,11 @@ class TestAlwaysonTxt2ImgWorking(unittest.TestCase):
         }
         self.setup_controlnet_params(setup_args)
 
+    # NOTE: 联合SD WebUI的输入形式, 只是这里开来写了而已
     def setup_controlnet_params(self, setup_args):
         self.simple_txt2img["alwayson_scripts"]["ControlNet"] = {"args": setup_args}
 
+    # NOTE: WebUI post发送流程
     def assert_status_ok(self, msg=None, expected_image_num=None):
         msg = ("" if msg is None else msg) + f"\nPayload:\n{self.simple_txt2img}"
 

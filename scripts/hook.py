@@ -415,7 +415,7 @@ class UnetHook(nn.Module):
                 self.model.current_sampling_percent = current_sampling_percent
 
     def hook(self, model, sd_ldm, control_params, process, batch_option_uint_separate=False, batch_option_style_align=False):
-        self.model = model
+        self.model = model  # unet
         self.sd_ldm = sd_ldm
         self.control_params = control_params
 
@@ -512,6 +512,7 @@ class UnetHook(nn.Module):
                         and 'colorfix' not in param.preprocessor['name'] \
                         and 'inpaint_only' not in param.preprocessor['name']:
                     continue
+                # NOTE: 使用VAE对control image进行latent化
                 param.used_hint_cond_latent = outer.call_vae_using_process(process, param.used_hint_cond, batch_size=batch_size)
 
             # vram
@@ -527,7 +528,7 @@ class UnetHook(nn.Module):
                     elif hasattr(param.control_model, 'to'):
                         param.control_model.to(devices.get_device_for("controlnet"))
 
-            # handle prompt token control
+            # NOTE: handle prompt token control
             for param in outer.control_params:
                 if param.guidance_stopped or param.disabled_by_hr_option(self.is_in_high_res_fix):
                     continue
@@ -578,6 +579,7 @@ class UnetHook(nn.Module):
                     m = (m > 0.5).float()
                     hint = c * (1 - m) - m
 
+                # NOTE: x_in对应的应该是当前的输入，hint对应的是controlnet的输入图像，controlnet_context对应的应该是controlnet的提示词
                 control = param.control_model(
                     x=x_in,
                     hint=hint,

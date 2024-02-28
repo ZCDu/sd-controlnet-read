@@ -195,6 +195,7 @@ class UiControlNetUnit(external_code.ControlNetUnit):
         return result
 
 
+# NOTE: 单个的ControlNet配置卡,ControlNet是可以有多个配置卡的
 class ControlNetUiGroup(object):
     refresh_symbol = "\U0001f504"  # 🔄
     switch_values_symbol = "\U000021C5"  # ⇅

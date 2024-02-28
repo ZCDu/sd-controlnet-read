@@ -440,6 +440,7 @@ def update_cn_script_in_place(
             script.args_to += cn_script_args_diff
 
 
+# NOTE: model对应的才是ControlNet的网络
 def get_models(update: bool = False) -> List[str]:
     """
     Fetch the list of available models.
@@ -455,6 +456,7 @@ def get_models(update: bool = False) -> List[str]:
     return list(global_state.cn_models_names.values())
 
 
+# NOTE: 从这里看module对应的应该是preprocessors
 def get_modules(alias_names: bool = False) -> List[str]:
     """
     Fetch the list of available preprocessors.

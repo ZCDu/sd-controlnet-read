@@ -588,6 +588,7 @@ class PlugableIPAdapter(torch.nn.Module):
         else:
             return self.ipadapter.get_image_embeds(preprocessor_output)
 
+    # NOTE: 这里应该实现的是COntrolNet对应模块的替换
     @torch.no_grad()
     def hook(self, model, preprocessor_outputs, weight, start, end, dtype=torch.float32):
         global current_model

@@ -221,6 +221,7 @@ class Script(scripts.Script, metaclass=(
     def __init__(self) -> None:
         super().__init__()
         self.latest_network = None
+        # NOTE: preprocessor对应的就是ControlNet页面的Preprocessor
         self.preprocessor = global_state.cache_preprocessors(global_state.cn_preprocessor_modules)
         self.unloadable = global_state.cn_preprocessor_unloadable
         self.input_image = None
@@ -298,6 +299,7 @@ class Script(scripts.Script, metaclass=(
 
         return
 
+    # NOTE: 该UI会嵌入到SD WebUI中
     def ui(self, is_img2img):
         """this function should create gradio UI elements. See https://gradio.app/docs/#components
         The return value should be an array of all components that are used in processing.
@@ -308,7 +310,9 @@ class Script(scripts.Script, metaclass=(
         controls = []
         max_models = shared.opts.data.get("control_net_unit_count", 3)
         elem_id_tabname = ("img2img" if is_img2img else "txt2img") + "_controlnet"
+        # NOTE: 布局，内部会统一到同一个布局上
         with gr.Group(elem_id=elem_id_tabname):
+            # NOTE: 构建一个可折叠的面板
             with gr.Accordion(f"ControlNet {controlnet_version.version_flag}", open = False, elem_id="controlnet"):
                 photopea = Photopea() if not shared.opts.data.get("controlnet_disable_photopea_edit", False) else None
                 if max_models > 1:
@@ -815,6 +819,7 @@ class Script(scripts.Script, metaclass=(
 
         return h, w, hr_y, hr_x
 
+    # PERF: Controlnet的入口，在这里完成完整的推理过程，SD的调用也在这里
     def controlnet_main_entry(self, p):
         sd_ldm = p.sd_model
         unet = sd_ldm.model.diffusion_model
@@ -859,12 +864,17 @@ class Script(scripts.Script, metaclass=(
                 self.unloadable.get(key, lambda:None)()
 
         self.latest_model_hash = p.sd_model.sd_model_hash
+        # NOTE: 从这里可以看出来hr表示的是high_res
         high_res_fix = isinstance(p, StableDiffusionProcessingTxt2Img) and getattr(p, 'enable_hr', False)
         h, w, hr_y, hr_x = Script.get_target_dimensions(p)
 
         for idx, unit in enumerate(self.enabled_units):
             Script.bound_check_params(unit)
+            # NOTE: 验证ContolNet是否与SD匹配
             Script.check_sd_version_compatible(unit)
+            # NOTE:ip-adapter需要额外的处理 
+            # NOTE: module和model应该对应这SD webui里的2个选择
+            # NOTE: unit.module对应的是页面上的Control Type
             if (
                 "ip-adapter" in unit.module and
                 not global_state.ip_adapter_pairing_model[unit.module](unit.model)
@@ -891,15 +901,18 @@ class Script(scripts.Script, metaclass=(
                 else:
                     raise Exception("Unable to determine control_model_type.")
             else:
+                # NOTE: model对应的应该就是ControlNet页面的Model
                 model_net, control_model_type = Script.load_control_model(p, unet, unit.model)
                 model_net.reset()
 
+                # NOTE: ControlNet居然也有Lora，这找谁说理去
                 if control_model_type == ControlModelType.ControlLoRA:
                     control_lora = model_net.control_model
                     bind_control_lora(unet, control_lora)
                     p.controlnet_control_loras.append(control_lora)
 
             input_image, resize_mode = Script.choose_input_image(p, unit, idx)
+            # NOTE: ControlNet处理的对象一定是List的图片集合
             if isinstance(input_image, list):
                 assert unit.accepts_multiple_inputs()
                 input_images = input_image
@@ -933,6 +946,8 @@ class Script(scripts.Script, metaclass=(
 
             def preprocess_input_image(input_image: np.ndarray):
                 """ Preprocess single input image. """
+                # NOTE: preprocessor对应的就是ControNet页面中的Preprocessor
+                # 这里先使用preprocessor模型对输入图片进行处理
                 detected_map, is_image = self.preprocessor[unit.module](
                     input_image,
                     res=unit.processor_res,
@@ -966,6 +981,7 @@ class Script(scripts.Script, metaclass=(
                     control = control['image_embeds']
                 return control, hr_control
 
+            # NOTE: 使用ControlNet页面的Preprocessor对输入进行处理
             controls, hr_controls = list(zip(*[preprocess_input_image(img) for img in input_images]))
             if len(controls) == len(hr_controls) == 1:
                 control = controls[0]
@@ -1138,6 +1154,7 @@ class Script(scripts.Script, metaclass=(
     def process_has_sdxl_refiner(p):
         return getattr(p, 'refiner_checkpoint', None) is not None
 
+    # NOTE: 以process开头的函数和SD Webui中Script run中的声明一致，但是并没有找到run呀
     def process(self, p, *args, **kwargs):
         if not Script.process_has_sdxl_refiner(p):
             self.controlnet_hack(p)

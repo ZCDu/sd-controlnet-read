@@ -42,6 +42,7 @@ img2img_payload = {
     "n_iter": 1,
     "steps": 30,
     "sampler_name": "DPM++ 2M Karras",
+    # NOTE: 重绘的时候关键字都是质量，而没有具体的内容信息
     "prompt": "(masterpiece: 1.3), (highres: 1.3), best quality,",
     "negative_prompt": "(worst quality:2), (low quality:2), (normal quality:2), lowres, normal quality, ((monochrome)), ((grayscale)), skin spots, acnes, skin blemishes, age spot, backlight,(ugly:1.331), (duplicate:1.331), (morbid:1.21), (mutilated:1.21), (tranny:1.331), mutated hands, (poorly drawn hands:1.331), blurry, (bad anatomy:1.21), (bad proportions:1.331), extra limbs, (more than 2 nipples:1.331), (missing arms:1.331), (extra legs:1.331), (fused fingers:1.61051), (too many fingers:1.61051), (unclear eyes:1.331), bad hands, missing fingers, extra digit, (futa:1.1), bad body, pubic hair, glans, easynegative,more than 2 tits, ng_deepnegative_v1_75t,(big fee:1),more than 2 feet,incorrect feet",
     "seed": 42,
