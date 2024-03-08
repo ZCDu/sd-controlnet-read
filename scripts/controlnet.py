@@ -418,6 +418,7 @@ class Script(scripts.Script, metaclass=(
         attribute_value = get_element(getattr(p, attribute, None), strict)
         return attribute_value if attribute_value is not None else default
 
+    # NOITE: 使用额外的Pydantic来封装ControlNet的配置
     @staticmethod
     def parse_remote_call(p, unit: external_code.ControlNetUnit, idx):
         selector = Script.get_remote_call

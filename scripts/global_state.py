@@ -159,7 +159,7 @@ preprocessor_aliases = {
     "invert": "invert (from white bg & black line)",
     "lineart_standard": "lineart_standard (from white bg & black line)",
     "lineart": "lineart_realistic",
-    "color": "t2ia_color_grid",
+    "color": "t2ia_color_grid", # 这个当前只有sd1.5可以用
     "clip_vision": "t2ia_style_clipvision",
     "pidinet_sketch": "t2ia_sketch_pidi",
     "depth": "depth_midas",
